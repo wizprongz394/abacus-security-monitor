@@ -1,0 +1,25 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Runtime database
+data/*.db
+data/*.sqlite
+data/*.sqlite3
+
+# Agent runtime logs / queues
+logs/
+*.log
+
+# Local environment / secrets
+.env
+.env.*
+!.env.example
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
