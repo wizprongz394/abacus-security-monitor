@@ -2,7 +2,7 @@
 # ABACUS SECURITY AGENT
 # Custom Endpoint Telemetry Agent
 #
-# Version: 0.4.0
+# Version: 0.8.0
 #
 # Responsibilities:
 #   1. Collect endpoint telemetry
@@ -35,7 +35,7 @@ from typing import Dict, Any, List
 # CONFIGURATION
 # ============================================================
 
-AGENT_VERSION = "0.4.0"
+AGENT_VERSION = "0.8.0"
 
 SERVER_URL = os.getenv(
     "ABACUS_SERVER",
@@ -463,7 +463,9 @@ def collect_process_info() -> Dict[str, Any]:
                 "create_time",
                 "status",
                 "username",
-                "exe"
+                "exe",
+                "cmdline",
+                "ppid"
             ]
         ):
 
@@ -508,6 +510,44 @@ def collect_process_info() -> Dict[str, Any]:
             reverse=True
         )
 
+        # --------------------------------------------------------
+        # PROCESS PARENT CONTEXT
+        # --------------------------------------------------------
+        #
+        # Only enrich the processes that will actually be sent.
+        # This provides process-chain context to the central
+        # detection engine without turning Angelmode into a
+        # full process-tracing system.
+        # --------------------------------------------------------
+
+        top_processes = processes[:20]
+
+        for item in top_processes:
+
+            ppid = item.get("ppid")
+
+            if not ppid:
+                continue
+
+            try:
+
+                parent = psutil.Process(
+                    ppid
+                )
+
+                item["parent_name"] = parent.name()
+
+            except (
+                psutil.NoSuchProcess,
+                psutil.AccessDenied
+            ):
+
+                item["parent_name"] = None
+
+            except Exception:
+
+                item["parent_name"] = None
+
         return {
 
             "total_processes": len(
@@ -516,7 +556,7 @@ def collect_process_info() -> Dict[str, Any]:
 
             # Don't dump hundreds of processes
             # every telemetry cycle.
-            "top_processes": processes[:20],
+            "top_processes": top_processes,
 
             "timestamp": utc_timestamp()
         }

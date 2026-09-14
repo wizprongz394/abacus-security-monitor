@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Abacus · Security Monitor</title>
+    <title>ABACUS ·  GODMODE</title>
 
     <style>
         * {
@@ -12,36 +12,132 @@
             padding: 0;
         }
 
-        body {
-            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: #060b18;
-            color: #eef2f6;
+        :root {
+            --cyan: #00e5ff;
+            --cyan-dim: #0891b2;
+            --violet: #8b5cf6;
+            --green: #22ff88;
+            --amber: #ffb547;
+            --red: #ff3860;
+            --bg-deep: #02040a;
+            --bg-panel: rgba(6, 18, 32, 0.72);
+            --grid: rgba(0, 229, 255, 0.06);
+            --border-glow: rgba(0, 229, 255, 0.35);
+        }
+
+        html, body {
             min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', 'Inter', ui-monospace, 'SF Mono', Menlo, monospace;
+            background: var(--bg-deep);
+            color: #d6f4ff;
+            position: relative;
             background-image:
-                radial-gradient(circle at 20% 30%, rgba(0, 180, 255, 0.035) 0%, transparent 40%),
-                radial-gradient(circle at 80% 70%, rgba(0, 255, 200, 0.025) 0%, transparent 50%);
+                radial-gradient(ellipse at 15% 10%, rgba(0, 229, 255, 0.09), transparent 45%),
+                radial-gradient(ellipse at 85% 90%, rgba(139, 92, 246, 0.08), transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(0, 255, 180, 0.03), transparent 70%);
+            letter-spacing: 0.02em;
         }
 
-        .card,
-        header,
-        .stat-card {
-            background: rgba(15, 23, 42, 0.62);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(56, 189, 248, 0.14);
-            box-shadow:
-                0 8px 24px rgba(0, 0, 0, 0.5),
-                0 0 0 1px rgba(56, 189, 248, 0.04);
+        /* === ANIMATED GRID BACKGROUND === */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: -50%;
+            background-image:
+                linear-gradient(var(--grid) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+            background-size: 60px 60px;
+            transform: perspective(500px) rotateX(0deg);
+            animation: gridDrift 25s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.55;
         }
 
+        @keyframes gridDrift {
+            0%   { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(60px, 60px, 0); }
+        }
+
+        /* === SCAN BEAM === */
+        body::after {
+            content: "";
+            position: fixed;
+            left: 0;
+            right: 0;
+            height: 200px;
+            background: linear-gradient(
+                180deg,
+                transparent 0%,
+                rgba(0, 229, 255, 0.04) 40%,
+                rgba(0, 229, 255, 0.12) 50%,
+                rgba(0, 229, 255, 0.04) 60%,
+                transparent 100%
+            );
+            animation: scanBeam 6s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes scanBeam {
+            0%   { top: -200px; opacity: 0; }
+            10%  { opacity: 1; }
+            90%  { opacity: 1; }
+            100% { top: 100vh; opacity: 0; }
+        }
+
+        /* === TOP TICKER === */
+        .ticker-bar {
+            position: relative;
+            z-index: 3;
+            background: linear-gradient(90deg, rgba(0, 229, 255, 0.08), rgba(139, 92, 246, 0.06));
+            border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+            padding: 6px 0;
+            overflow: hidden;
+            font-size: 11px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        .ticker-track {
+            display: inline-block;
+            white-space: nowrap;
+            animation: tickerScroll 45s linear infinite;
+            padding-left: 100%;
+        }
+
+        .ticker-track span {
+            color: var(--cyan);
+            margin: 0 32px;
+            text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+        }
+
+        .ticker-track span.warn { color: var(--amber); text-shadow: 0 0 8px rgba(255, 181, 71, 0.5); }
+        .ticker-track span.ok { color: var(--green); text-shadow: 0 0 8px rgba(34, 255, 136, 0.5); }
+
+        @keyframes tickerScroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* === HEADER === */
         header {
+            position: relative;
+            z-index: 3;
             padding: 18px 40px;
-            border-bottom: 1px solid #1e2a44;
-            background: rgba(6, 11, 24, 0.86);
+            background: linear-gradient(180deg, rgba(2, 8, 18, 0.95), rgba(2, 8, 18, 0.75));
+            border-bottom: 1px solid rgba(0, 229, 255, 0.25);
+            box-shadow:
+                0 4px 40px rgba(0, 229, 255, 0.06),
+                inset 0 -1px 0 rgba(0, 229, 255, 0.15);
+            backdrop-filter: blur(12px);
             position: sticky;
             top: 0;
-            z-index: 10;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
+            z-index: 20;
         }
 
         .header-content {
@@ -50,155 +146,592 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 14px;
+            max-width: 1560px;
+            margin: 0 auto;
         }
 
         .brand {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 16px;
         }
 
         .brand-icon {
-            font-size: 28px;
-            filter: drop-shadow(0 0 8px #38bdf8);
+            width: 46px;
+            height: 46px;
+            display: grid;
+            place-items: center;
+            font-size: 26px;
+            background:
+                radial-gradient(circle at 30% 30%, rgba(0, 229, 255, 0.25), transparent 60%),
+                linear-gradient(135deg, rgba(0, 229, 255, 0.15), rgba(139, 92, 246, 0.15));
+            border: 1px solid rgba(0, 229, 255, 0.5);
+            border-radius: 12px;
+            color: var(--cyan);
+            box-shadow:
+                0 0 20px rgba(0, 229, 255, 0.35),
+                inset 0 0 20px rgba(0, 229, 255, 0.1);
+            animation: iconPulse 3s ease-in-out infinite;
+            position: relative;
+        }
+
+        .brand-icon::after {
+            content: "";
+            position: absolute;
+            inset: -2px;
+            border-radius: 12px;
+            background: conic-gradient(from 0deg, transparent 0%, var(--cyan) 50%, transparent 100%);
+            opacity: 0.4;
+            z-index: -1;
+            animation: rotate 4s linear infinite;
+        }
+
+        @keyframes iconPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 229, 255, 0.35), inset 0 0 20px rgba(0, 229, 255, 0.1); }
+            50%      { box-shadow: 0 0 32px rgba(0, 229, 255, 0.55), inset 0 0 30px rgba(0, 229, 255, 0.2); }
+        }
+
+        @keyframes rotate {
+            to { transform: rotate(360deg); }
         }
 
         h1 {
-            font-size: 22px;
-            font-weight: 600;
-            letter-spacing: -0.3px;
-            background: linear-gradient(135deg, #f0f9ff, #94d0ff);
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #ffffff, var(--cyan) 60%, var(--violet));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            text-shadow: 0 0 30px rgba(0, 229, 255, 0.3);
         }
 
         .subtitle {
-            color: #7a8aa3;
-            font-size: 13px;
-            font-weight: 400;
-            letter-spacing: 0.3px;
-            margin-top: 2px;
-            border-left: 1px solid #2a3a5a;
-            padding-left: 14px;
-            margin-left: 6px;
+            color: #5d80a3;
+            font-size: 10px;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            margin-top: 4px;
+            padding-left: 0;
+            border: none;
         }
 
+        .subtitle::before {
+            content: "// ";
+            color: var(--cyan);
+        }
+
+        /* === STATUS PILL === */
         .status-pulse {
             display: flex;
             align-items: center;
             gap: 10px;
-            background: rgba(34, 197, 94, 0.08);
-            padding: 7px 18px 7px 14px;
-            border-radius: 60px;
-            border: 1px solid rgba(34, 197, 94, 0.2);
+            background: rgba(0, 229, 255, 0.06);
+            padding: 8px 20px 8px 14px;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 229, 255, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-pulse::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.15), transparent);
+            animation: sweep 2.5s linear infinite;
+        }
+
+        @keyframes sweep {
+            0%   { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
 
         .status-pulse.error {
-            background: rgba(248, 113, 113, 0.08);
-            border-color: rgba(248, 113, 113, 0.25);
+            background: rgba(255, 56, 96, 0.06);
+            border-color: rgba(255, 56, 96, 0.45);
         }
 
         .status-dot {
             width: 10px;
             height: 10px;
-            background: #22c55e;
+            background: var(--green);
             border-radius: 50%;
-            box-shadow: 0 0 12px #22c55e;
+            box-shadow: 0 0 12px var(--green), 0 0 24px rgba(34, 255, 136, 0.5);
             animation: pulse-dot 1.8s infinite;
+            position: relative;
+            z-index: 1;
         }
 
         .status-pulse.error .status-dot {
-            background: #f87171;
-            box-shadow: 0 0 12px #f87171;
+            background: var(--red);
+            box-shadow: 0 0 12px var(--red), 0 0 24px rgba(255, 56, 96, 0.5);
         }
 
         @keyframes pulse-dot {
-            0% { opacity: 0.6; transform: scale(0.95); }
-            50% { opacity: 1; transform: scale(1.2); }
-            100% { opacity: 0.6; transform: scale(0.95); }
+            0%, 100% { opacity: 0.7; transform: scale(0.9); }
+            50%      { opacity: 1; transform: scale(1.15); }
         }
 
         .status-label {
-            font-size: 13px;
-            font-weight: 500;
-            color: #86efac;
-            letter-spacing: 0.3px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--green);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            position: relative;
+            z-index: 1;
         }
 
         .status-pulse.error .status-label {
-            color: #fca5a5;
+            color: #ff8ba5;
         }
 
+        /* === MAIN === */
         main {
+            position: relative;
+            z-index: 2;
             padding: 28px 40px 40px;
-            max-width: 1440px;
+            max-width: 1560px;
             margin: auto;
         }
 
+        /* === STAT CARDS — HUD STYLE === */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 18px;
-            margin-bottom: 28px;
+            margin-bottom: 24px;
         }
 
         .stat-card {
-            padding: 20px 24px;
-            border-radius: 16px;
+            position: relative;
+            padding: 22px 24px;
+            background: var(--bg-panel);
+            border: 1px solid rgba(0, 229, 255, 0.18);
+            border-radius: 4px;
+            overflow: hidden;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s, box-shadow 0.25s;
+            transform-style: preserve-3d;
+            will-change: transform;
+            backdrop-filter: blur(8px);
+        }
+
+        .stat-card:hover {
+            border-color: rgba(0, 229, 255, 0.55);
+            box-shadow:
+                0 0 0 1px rgba(0, 229, 255, 0.2),
+                0 12px 40px rgba(0, 229, 255, 0.15),
+                inset 0 0 30px rgba(0, 229, 255, 0.05);
+        }
+
+        /* corner brackets */
+        .stat-card::before,
+        .stat-card::after {
+            content: "";
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border: 1px solid var(--cyan);
+            opacity: 0.7;
+        }
+
+        .stat-card::before {
+            top: 6px; left: 6px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .stat-card::after {
+            bottom: 6px; right: 6px;
+            border-left: none;
+            border-top: none;
+        }
+
+        .stat-card .corner-tr,
+        .stat-card .corner-bl {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border: 1px solid var(--cyan);
+            opacity: 0.7;
+        }
+
+        .stat-card .corner-tr {
+            top: 6px; right: 6px;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .stat-card .corner-bl {
+            bottom: 6px; left: 6px;
+            border-right: none;
+            border-top: none;
+        }
+
+        .stat-label {
+            color: #5d80a3;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-label::before {
+            content: "";
+            width: 3px;
+            height: 3px;
+            background: var(--cyan);
+            border-radius: 50%;
+            box-shadow: 0 0 6px var(--cyan);
+        }
+
+        /* === LIVE METRIC MOTION === */
+        .stat-value.metric-pulse {
+            animation: metricPulse 0.55s ease-out;
+        }
+
+        @keyframes metricPulse {
+            0%   { opacity: 0.65; transform: translateY(2px); }
+            45%  { opacity: 1; transform: translateY(0); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .live-tick {
+            display: inline-block;
+            min-width: 5px;
+            height: 5px;
+            margin-left: 2px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 8px var(--green);
+            animation: pulse-dot 1.2s infinite;
+            vertical-align: middle;
+        }
+
+        .stat-value {
+            font-size: 38px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #ffffff;
+            text-shadow:
+                0 0 20px rgba(0, 229, 255, 0.5),
+                0 0 40px rgba(0, 229, 255, 0.15);
+            font-variant-numeric: tabular-nums;
+            line-height: 1;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-sub {
+            font-size: 11px;
+            color: #6a89a8;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.05em;
+            position: relative;
+            z-index: 1;
+        }
+
+        .healthy { color: var(--green); text-shadow: 0 0 8px rgba(34, 255, 136, 0.5); }
+        .warning { color: var(--amber); text-shadow: 0 0 8px rgba(255, 181, 71, 0.5); }
+        .danger  { color: var(--red);   text-shadow: 0 0 8px rgba(255, 56, 96, 0.5); }
+
+        /* === POSTURE GRID === */
+        .posture-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr 1fr;
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .card {
+            background: var(--bg-panel);
+            border: 1px solid rgba(0, 229, 255, 0.14);
+            border-radius: 4px;
+            backdrop-filter: blur(8px);
+            position: relative;
+        }
+
+        .posture-card {
+            padding: 22px;
             position: relative;
             overflow: hidden;
         }
 
-        .stat-card::after {
+        .posture-card::after {
             content: "";
             position: absolute;
-            top: 0;
-            left: 0;
+            top: 0; left: 0;
             width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, #38bdf8, #818cf8, #38bdf8);
-            background-size: 200% 100%;
-            animation: shimmer-border 3s infinite linear;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            opacity: 0.5;
+            animation: pulseBar 3s ease-in-out infinite;
         }
 
-        @keyframes shimmer-border {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
+        @keyframes pulseBar {
+            0%, 100% { opacity: 0.2; }
+            50%      { opacity: 0.7; }
         }
 
-        .stat-label {
-            color: #8899bb;
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-            margin-bottom: 6px;
-        }
-
-        .stat-value {
-            font-size: 34px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #e2e8f0, #b0c4e8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .stat-sub {
-            font-size: 13px;
-            color: #6a7f9f;
-            margin-top: 4px;
+        .posture-heading {
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+            color: #5d80a3;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+        }
+
+        .live-indicator {
+            display: inline-flex;
             align-items: center;
             gap: 6px;
+            color: var(--green);
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            padding: 3px 8px;
+            background: rgba(34, 255, 136, 0.08);
+            border: 1px solid rgba(34, 255, 136, 0.3);
+            border-radius: 2px;
         }
 
-        .healthy { color: #4ade80; }
-        .warning { color: #facc15; }
-        .danger { color: #f87171; }
+        .live-indicator::before {
+            content: "";
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 8px var(--green);
+            animation: pulse-dot 1.8s infinite;
+        }
 
+        .posture-main {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* === HOLOGRAPHIC RISK RING === */
+        .risk-ring-wrap {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            flex-shrink: 0;
+        }
+
+        .risk-ring-outer {
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 1px dashed rgba(0, 229, 255, 0.4);
+            animation: rotate 12s linear infinite;
+        }
+
+        .risk-ring-outer::before,
+        .risk-ring-outer::after {
+            content: "";
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--cyan);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--cyan);
+        }
+
+        .risk-ring-outer::before {
+            top: -3px; left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .risk-ring-outer::after {
+            bottom: -3px; left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .risk-ring {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: conic-gradient(var(--green) 0deg, #0a1a2e 0deg);
+            transition: background 0.6s ease;
+            box-shadow:
+                0 0 30px rgba(34, 255, 136, 0.15),
+                inset 0 0 20px rgba(0, 0, 0, 0.7);
+        }
+
+        .risk-ring::after {
+            content: "";
+            position: absolute;
+            inset: 9px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #0f1e35, #060d1a);
+            border: 1px solid rgba(0, 229, 255, 0.2);
+        }
+
+        .risk-ring-value {
+            position: relative;
+            z-index: 1;
+            font-size: 22px;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 0 15px rgba(0, 229, 255, 0.7);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .posture-status {
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            letter-spacing: 0.02em;
+        }
+
+        .posture-note {
+            color: #6a89a8;
+            font-size: 11px;
+            line-height: 1.6;
+            letter-spacing: 0.03em;
+        }
+
+        /* === BAR ROWS === */
+        .bar-row {
+            display: grid;
+            grid-template-columns: 68px 1fr 40px;
+            align-items: center;
+            gap: 10px;
+            margin: 12px 0;
+            font-size: 10px;
+            color: #7a95b5;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .bar-track {
+            height: 6px;
+            border-radius: 2px;
+            background: rgba(0, 229, 255, 0.06);
+            overflow: hidden;
+            border: 1px solid rgba(0, 229, 255, 0.1);
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: inherit;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--cyan);
+            box-shadow: 0 0 10px currentColor;
+            position: relative;
+        }
+
+        .bar-fill::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: sweep 2s linear infinite;
+        }
+
+        .bar-fill.high   { background: var(--red);   color: var(--red); }
+        .bar-fill.medium { background: var(--amber); color: var(--amber); }
+        .bar-fill.low    { background: var(--green); color: var(--green); }
+
+        .bar-row strong {
+            color: #d6f4ff;
+            font-weight: 800;
+            text-align: right;
+            font-size: 12px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        #dedupe-chip {
+            color: var(--cyan);
+            font-size: 9px;
+            letter-spacing: 0.15em;
+            padding: 3px 8px;
+            background: rgba(0, 229, 255, 0.06);
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        /* === SIGNAL LIST === */
+        .signal-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .signal {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            border-radius: 3px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(0, 229, 255, 0.08);
+            font-size: 11px;
+            transition: border-color 0.2s;
+        }
+
+        .signal:hover {
+            border-color: rgba(0, 229, 255, 0.25);
+        }
+
+        .signal-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #8aa5c5;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .signal-value {
+            color: #ffffff;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.05em;
+        }
+
+        .signal-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 10px var(--green);
+            animation: pulse-dot 2s infinite;
+        }
+
+        .signal-dot.warn {
+            background: var(--amber);
+            box-shadow: 0 0 10px var(--amber);
+        }
+
+        .signal-dot.danger {
+            background: var(--red);
+            box-shadow: 0 0 10px var(--red);
+        }
+
+        /* === MAIN LAYOUT === */
         .layout {
             display: grid;
             grid-template-columns: 1.5fr 1fr;
@@ -206,28 +739,35 @@
         }
 
         .section-card {
-            padding: 24px 24px 20px;
-            border-radius: 18px;
+            padding: 22px 24px;
             min-width: 0;
+            border-radius: 4px;
         }
 
         .section-title {
-            font-size: 17px;
-            font-weight: 600;
-            margin-bottom: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 18px;
             display: flex;
             align-items: center;
             gap: 10px;
-            color: #d6e3f5;
+            color: #b8d4f0;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            padding-bottom: 14px;
+            border-bottom: 1px solid rgba(0, 229, 255, 0.1);
         }
 
-        .section-title span {
-            background: rgba(56, 189, 248, 0.12);
-            padding: 2px 12px;
-            border-radius: 40px;
-            font-size: 12px;
-            font-weight: 500;
-            color: #7bb9f0;
+        .section-title > span {
+            background: rgba(0, 229, 255, 0.1);
+            padding: 3px 10px;
+            border-radius: 2px;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--cyan);
+            letter-spacing: 0.1em;
+            border: 1px solid rgba(0, 229, 255, 0.25);
+            margin-left: auto;
         }
 
         .device-list,
@@ -242,17 +782,34 @@
             justify-content: space-between;
             align-items: center;
             gap: 12px;
-            padding: 14px 18px;
-            background: rgba(0, 0, 0, 0.25);
-            border-radius: 12px;
-            border: 1px solid rgba(56, 189, 248, 0.05);
-            border-left: 4px solid #38bdf8;
-            transition: 0.15s ease;
+            padding: 14px 16px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(0, 229, 255, 0.08);
+            border-left: 3px solid var(--cyan);
+            border-radius: 3px;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .device-item::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(0, 229, 255, 0.06), transparent 30%);
+            opacity: 0;
+            transition: opacity 0.2s;
         }
 
         .device-item:hover {
-            background: rgba(20, 40, 70, 0.5);
-            border-color: rgba(56, 189, 248, 0.2);
+            background: rgba(0, 229, 255, 0.04);
+            border-color: rgba(0, 229, 255, 0.4);
+            transform: translateX(2px);
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.1);
+        }
+
+        .device-item:hover::before {
+            opacity: 1;
         }
 
         .device-left {
@@ -260,6 +817,8 @@
             align-items: center;
             gap: 14px;
             min-width: 0;
+            position: relative;
+            z-index: 1;
         }
 
         .device-status {
@@ -270,441 +829,508 @@
         }
 
         .online-dot {
-            background: #22c55e;
-            box-shadow: 0 0 8px #22c55e;
+            background: var(--green);
+            box-shadow: 0 0 10px var(--green);
+            animation: pulse-dot 2s infinite;
         }
 
         .offline-dot {
-            background: #64748b;
-            opacity: 0.5;
+            background: #475569;
+            opacity: 0.6;
         }
 
         .device-name {
-            font-weight: 600;
-            font-size: 15px;
+            font-weight: 700;
+            font-size: 13px;
+            color: #e4f4ff;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            letter-spacing: 0.03em;
         }
 
         .device-meta {
-            color: #7a8aa3;
-            font-size: 12px;
+            color: #6a89a8;
+            font-size: 10px;
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 3px;
+            gap: 6px;
+            margin-top: 4px;
+            letter-spacing: 0.05em;
         }
 
         .device-meta span {
-            background: rgba(255, 255, 255, 0.04);
+            background: rgba(0, 229, 255, 0.05);
             padding: 2px 8px;
-            border-radius: 12px;
+            border-radius: 2px;
+            border: 1px solid rgba(0, 229, 255, 0.08);
         }
 
         .risk-badge {
-            font-weight: 600;
-            font-size: 13px;
-            padding: 4px 12px;
-            border-radius: 40px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            font-weight: 700;
+            font-size: 11px;
+            padding: 5px 12px;
+            border-radius: 2px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid;
             flex-shrink: 0;
+            letter-spacing: 0.1em;
+            position: relative;
+            z-index: 1;
+            font-variant-numeric: tabular-nums;
         }
 
         .risk-low {
-            color: #4ade80;
-            border-color: rgba(74, 222, 128, 0.2);
+            color: var(--green);
+            border-color: rgba(34, 255, 136, 0.3);
+            box-shadow: 0 0 12px rgba(34, 255, 136, 0.15);
         }
 
         .risk-medium {
-            color: #facc15;
-            border-color: rgba(250, 204, 21, 0.2);
+            color: var(--amber);
+            border-color: rgba(255, 181, 71, 0.35);
+            box-shadow: 0 0 12px rgba(255, 181, 71, 0.15);
         }
 
         .risk-high {
-            color: #f87171;
-            border-color: rgba(248, 113, 113, 0.2);
+            color: var(--red);
+            border-color: rgba(255, 56, 96, 0.4);
+            box-shadow: 0 0 12px rgba(255, 56, 96, 0.2);
+            animation: alertPulse 1.5s ease-in-out infinite;
         }
 
+        @keyframes alertPulse {
+            0%, 100% { box-shadow: 0 0 12px rgba(255, 56, 96, 0.2); }
+            50%      { box-shadow: 0 0 20px rgba(255, 56, 96, 0.45); }
+        }
+
+        /* === TERMINAL ACTIVITY FEED === */
         .activity-item {
-            padding: 12px 16px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            border-left: 2px solid #38bdf8;
+            padding: 12px 14px;
+            background: rgba(0, 0, 0, 0.4);
+            border-left: 2px solid var(--cyan);
+            border-radius: 2px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 12px;
-            font-size: 14px;
-            animation: slide-in 0.2s ease;
+            font-size: 12px;
+            animation: slide-in 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            font-family: 'JetBrains Mono', ui-monospace, monospace;
+        }
+
+        .activity-item::before {
+            content: "> ";
+            color: var(--cyan);
+            font-weight: 700;
+            opacity: 0.7;
         }
 
         .activity-item.alert {
-            border-left-color: #f87171;
+            border-left-color: var(--red);
+            background: rgba(255, 56, 96, 0.04);
+        }
+
+        .activity-item.alert::before {
+            content: "! ";
+            color: var(--red);
         }
 
         .activity-item .time {
-            color: #6a7f9f;
-            font-size: 12px;
+            color: #4a6280;
+            font-size: 10px;
             font-weight: 500;
             white-space: nowrap;
+            letter-spacing: 0.08em;
+            font-variant-numeric: tabular-nums;
         }
 
         .activity-item .event {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             min-width: 0;
+            flex: 1;
         }
 
         .event-text {
             min-width: 0;
             overflow: hidden;
             text-overflow: ellipsis;
+            color: #a8c5e0;
+        }
+
+        .event-text strong {
+            color: #ffffff;
+            font-weight: 700;
         }
 
         .event-icon {
-            font-size: 16px;
+            font-size: 13px;
             flex-shrink: 0;
         }
 
         .severity {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 0.15em;
             padding: 2px 6px;
-            border-radius: 5px;
+            border-radius: 2px;
             margin-left: 4px;
+            border: 1px solid;
         }
 
         .severity-CRITICAL,
         .severity-HIGH {
-            color: #f87171;
-            background: rgba(248, 113, 113, 0.1);
+            color: var(--red);
+            background: rgba(255, 56, 96, 0.1);
+            border-color: rgba(255, 56, 96, 0.35);
         }
 
         .severity-MEDIUM {
-            color: #facc15;
-            background: rgba(250, 204, 21, 0.1);
+            color: var(--amber);
+            background: rgba(255, 181, 71, 0.1);
+            border-color: rgba(255, 181, 71, 0.35);
         }
 
         .severity-LOW {
-            color: #4ade80;
-            background: rgba(74, 222, 128, 0.1);
+            color: var(--green);
+            background: rgba(34, 255, 136, 0.1);
+            border-color: rgba(34, 255, 136, 0.35);
         }
 
         .empty-state {
-            color: #5b6f8f;
-            padding: 24px 12px;
+            color: #4a6280;
+            padding: 30px 12px;
             text-align: center;
-            font-style: italic;
-            border: 1px dashed #1e2a44;
-            border-radius: 14px;
-            background: rgba(0, 0, 0, 0.15);
+            font-size: 11px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            border: 1px dashed rgba(0, 229, 255, 0.15);
+            border-radius: 3px;
+            background: rgba(0, 229, 255, 0.02);
         }
 
-        .error-state {
-            color: #fca5a5;
-            border-color: rgba(248, 113, 113, 0.2);
+        .empty-state.error-state {
+            color: #ff8ba5;
+            border-color: rgba(255, 56, 96, 0.3);
+            background: rgba(255, 56, 96, 0.04);
         }
 
         .glow-line {
             height: 1px;
-            width: 40%;
-            background: linear-gradient(90deg, transparent, #38bdf8, transparent);
-            margin-top: 14px;
-            opacity: 0.3;
+            width: 100%;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            margin-top: 16px;
+            opacity: 0.4;
         }
 
+        /* === FOOTER === */
         .footer-bar {
-            margin-top: 22px;
+            margin-top: 24px;
             display: flex;
             justify-content: space-between;
             gap: 12px;
-            color: #536783;
-            font-size: 11px;
+            color: #3d5470;
+            font-size: 10px;
             flex-wrap: wrap;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            padding-top: 16px;
+            border-top: 1px solid rgba(0, 229, 255, 0.08);
         }
 
+        /* === SCANLINE / CRT EFFECT === */
         .scanline {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             pointer-events: none;
             background: repeating-linear-gradient(
                 0deg,
-                rgba(0, 255, 255, 0.01) 0px,
+                rgba(0, 229, 255, 0.02) 0px,
                 rgba(0, 0, 0, 0) 2px,
-                transparent 6px
+                transparent 4px
             );
-            z-index: 999;
-            opacity: 0.15;
+            z-index: 9998;
+            opacity: 0.4;
+            mix-blend-mode: overlay;
         }
 
+        /* === CORNER HUD FRAMES === */
+        .hud-corner {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--cyan);
+            opacity: 0.4;
+            pointer-events: none;
+            z-index: 9997;
+        }
+
+        .hud-corner.tl { top: 8px; left: 8px; border-right: none; border-bottom: none; }
+        .hud-corner.tr { top: 8px; right: 8px; border-left: none; border-bottom: none; }
+        .hud-corner.bl { bottom: 8px; left: 8px; border-right: none; border-top: none; }
+        .hud-corner.br { bottom: 8px; right: 8px; border-left: none; border-top: none; }
+
         @keyframes slide-in {
-            from {
-                opacity: 0;
-                transform: translateY(3px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateX(-8px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 1100px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .posture-grid { grid-template-columns: 1fr; }
         }
 
         @media (max-width: 900px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .layout {
-                grid-template-columns: 1fr;
-            }
-
-            header {
-                padding: 14px 20px;
-            }
-
-            main {
-                padding: 20px;
-            }
+            .layout { grid-template-columns: 1fr; }
+            header { padding: 14px 20px; }
+            main { padding: 20px; }
+            h1 { font-size: 16px; }
+            .stat-value { font-size: 30px; }
         }
 
         @media (max-width: 500px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .header-content {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .status-pulse {
-                align-self: flex-start;
-            }
-
-            .activity-item {
-                align-items: flex-start;
-                flex-direction: column;
-            }
+            .stats-grid { grid-template-columns: 1fr; }
+            .header-content { flex-direction: column; align-items: flex-start; }
+            .status-pulse { align-self: flex-start; }
+            .activity-item { align-items: flex-start; flex-direction: column; }
         }
     </style>
 </head>
 
 <body>
 
+<!-- HUD CORNERS -->
+<div class="hud-corner tl"></div>
+<div class="hud-corner tr"></div>
+<div class="hud-corner bl"></div>
+<div class="hud-corner br"></div>
 <div class="scanline"></div>
+
+<!-- TICKER -->
+<div class="ticker-bar">
+    <div class="ticker-track">
+        <span class="ok">● TELEMETRY STREAM ACTIVE</span>
+        <span>◈ AGENT V0.4.0 ONLINE</span>
+        <span class="ok">● DATABASE CONNECTED</span>
+        <span>◈ DETECTION ENGINE ACTIVE</span>
+        <span class="warn">▲ 5S POLL INTERVAL</span>
+        <span>◈ ABACUS SECURITY MONITOR</span>
+        <span class="ok">● API CHANNEL ACTIVE</span>
+        <span>◈ ALERT DEDUPLICATION ACTIVE</span>
+    </div>
+</div>
 
 <header>
     <div class="header-content">
-
         <div class="brand">
-            <span class="brand-icon">⬡</span>
-
+            <div class="brand-icon">⬡</div>
             <div>
-                <h1>Abacus Security</h1>
-                <div class="subtitle">
-                    custom security monitoring · live telemetry
-                </div>
+                <h1>ABACUS · GODMODE </h1>
+                <div class="subtitle">centralized security telemetry · v0.5.1</div>
             </div>
         </div>
 
         <div class="status-pulse" id="backend-status">
             <span class="status-dot"></span>
             <span class="status-label" id="backend-status-label">
-                connecting to security console...
+                connecting...
             </span>
         </div>
-
     </div>
 </header>
 
-
 <main>
 
-    <!-- =========================================================
-         LIVE STATISTICS
-         ========================================================= -->
-
+    <!-- STATS -->
     <div class="stats-grid">
-
-        <div class="stat-card">
-
-            <div class="stat-label">
-                📡 monitored devices
-            </div>
-
-            <div class="stat-value" id="device-count">
-                0
-            </div>
-
+        <div class="stat-card tilt">
+            <span class="corner-tr"></span><span class="corner-bl"></span>
+            <div class="stat-label">◈ monitored devices</div>
+            <div class="stat-value" id="device-count">0</div>
             <div class="stat-sub">
                 <span class="healthy">●</span>
                 <span id="device-subtext">loading...</span>
             </div>
-
         </div>
 
-
-        <div class="stat-card">
-
-            <div class="stat-label">
-                🟢 online
-            </div>
-
-            <div class="stat-value" id="online-count">
-                0
-            </div>
-
+        <div class="stat-card tilt">
+            <span class="corner-tr"></span><span class="corner-bl"></span>
+            <div class="stat-label">◈ online</div>
+            <div class="stat-value" id="online-count">0</div>
             <div class="stat-sub">
                 <span class="healthy">●</span>
-                <span id="online-subtext">checking endpoints...</span>
+                <span id="online-subtext">checking...</span>
             </div>
-
         </div>
 
-
-        <div class="stat-card">
-
-            <div class="stat-label">
-                🚨 active alerts
-            </div>
-
-            <div class="stat-value" id="alert-count">
-                0
-            </div>
-
+        <div class="stat-card tilt">
+            <span class="corner-tr"></span><span class="corner-bl"></span>
+            <div class="stat-label">◈ active alerts</div>
+            <div class="stat-value" id="alert-count">0</div>
             <div class="stat-sub">
                 <span class="danger">⚠</span>
                 <span id="alert-subtext">0 critical</span>
             </div>
-
         </div>
 
-
-        <div class="stat-card">
-
-            <div class="stat-label">
-                ⚡ telemetry events
-            </div>
-
-            <div class="stat-value" id="telemetry-count">
-                0
-            </div>
-
+        <div class="stat-card tilt">
+            <span class="corner-tr"></span><span class="corner-bl"></span>
+            <div class="stat-label">◈ telemetry events</div>
+            <div class="stat-value" id="telemetry-count">0</div>
             <div class="stat-sub">
                 <span class="healthy">●</span>
                 <span id="telemetry-subtext">ingestion active</span>
             </div>
-
         </div>
+    </div>
+
+    <!-- POSTURE GRID -->
+    <div class="posture-grid">
+
+        <section class="posture-card card">
+            <div class="posture-heading">
+                <span>◈ Security Posture</span>
+                <span class="live-indicator">LIVE</span>
+            </div>
+
+            <div class="posture-main">
+                <div class="risk-ring-wrap">
+                    <div class="risk-ring-outer"></div>
+                    <div class="risk-ring" id="risk-ring">
+                        <span class="risk-ring-value" id="max-risk">0</span>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="posture-status healthy" id="posture-status">
+                        No elevated risk
+                    </div>
+                    <div class="posture-note" id="posture-note">
+                        Waiting for endpoint risk telemetry.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="posture-card card">
+            <div class="posture-heading">
+                <span>◈ Alert Distribution</span>
+                <span id="dedupe-chip">dedupe active</span>
+            </div>
+
+            <div class="bar-row">
+                <span>Critical</span>
+                <div class="bar-track"><div class="bar-fill high" id="bar-critical"></div></div>
+                <strong id="critical-value">0</strong>
+            </div>
+            <div class="bar-row">
+                <span>High</span>
+                <div class="bar-track"><div class="bar-fill high" id="bar-high"></div></div>
+                <strong id="high-value">0</strong>
+            </div>
+            <div class="bar-row">
+                <span>Medium</span>
+                <div class="bar-track"><div class="bar-fill medium" id="bar-medium"></div></div>
+                <strong id="medium-value">0</strong>
+            </div>
+            <div class="bar-row">
+                <span>Low</span>
+                <div class="bar-track"><div class="bar-fill low" id="bar-low"></div></div>
+                <strong id="low-value">0</strong>
+            </div>
+        </section>
+
+        <section class="posture-card card">
+            <div class="posture-heading">
+                <span>◈ System Signals</span>
+                <span id="signal-time">--</span>
+            </div>
+
+            <div class="signal-list">
+                <div class="signal">
+                    <span class="signal-label">
+                        <span class="signal-dot" id="signal-backend"></span>
+                        Security Console
+                    </span>
+                    <span class="signal-value" id="signal-backend-text">checking</span>
+                </div>
+                <div class="signal">
+                    <span class="signal-label">
+                        <span class="signal-dot" id="signal-endpoint"></span>
+                        Endpoint reporting
+                    </span>
+                    <span class="signal-value" id="signal-endpoint-text">checking</span>
+                </div>
+                <div class="signal">
+                    <span class="signal-label">
+                        <span class="signal-dot" id="signal-alerts"></span>
+                        Active alerts
+                    </span>
+                    <span class="signal-value" id="signal-alerts-text">0</span>
+                </div>
+            </div>
+        </section>
 
     </div>
 
-
-    <!-- =========================================================
-         MAIN DASHBOARD
-         ========================================================= -->
-
+    <!-- MAIN DASHBOARD -->
     <div class="layout">
 
-        <!-- DEVICES -->
-
         <section class="section-card card">
-
             <div class="section-title">
                 🛡️ Monitored Devices
                 <span id="device-badge">0</span>
             </div>
-
             <div id="devices-container" class="device-list">
-
-                <div class="empty-state">
-                    ⏳ loading endpoint inventory...
-                </div>
-
+                <div class="empty-state">⏳ loading endpoint inventory...</div>
             </div>
-
             <div class="glow-line"></div>
-
         </section>
 
-
-        <!-- ACTIVITY -->
-
         <section class="section-card card">
-
             <div class="section-title">
                 📋 Security Activity
                 <span id="activity-badge">live</span>
             </div>
-
             <div id="activity-container" class="activity-feed">
-
-                <div class="empty-state">
-                    🔎 waiting for telemetry...
-                </div>
-
+                <div class="empty-state">🔎 waiting for telemetry...</div>
             </div>
-
             <div class="glow-line"></div>
-
         </section>
 
     </div>
 
-
     <div class="footer-bar">
-        <span id="last-refresh">
-            Last refresh: --
-        </span>
-
-        <span>
-            Security Console · API polling interval: 5s
-        </span>
+        <span id="last-refresh">LAST REFRESH: --</span>
+        <span>ABACUS SECURITY CONSOLE · POLL INTERVAL 5S</span>
     </div>
 
 </main>
 
-
 <script>
 (function () {
-
-    // =========================================================
-    // CONFIGURATION
-    // =========================================================
 
     const API_BASE = "http://127.0.0.1:8000";
     const REFRESH_INTERVAL = 5000;
 
-
-    // =========================================================
-    // DOM HELPERS
-    // =========================================================
-
     const $ = (id) => document.getElementById(id);
-
 
     // =========================================================
     // API CLIENT
     // =========================================================
 
     async function api(endpoint) {
-
-        const response = await fetch(
-            `${API_BASE}${endpoint}`,
-            {
-                method: "GET",
-                headers: {
-                    "Accept": "application/json"
-                },
-                cache: "no-store"
-            }
-        );
+        const response = await fetch(`${API_BASE}${endpoint}`, {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            },
+            cache: "no-store"
+        });
 
         if (!response.ok) {
             throw new Error(
@@ -715,13 +1341,11 @@
         return await response.json();
     }
 
-
     // =========================================================
-    // SAFE HTML
+    // SAFETY / FORMATTING
     // =========================================================
 
     function escapeHtml(value) {
-
         return String(value ?? "")
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
@@ -730,16 +1354,8 @@
             .replace(/'/g, "&#039;");
     }
 
-
-    // =========================================================
-    // FORMATTERS
-    // =========================================================
-
     function formatTime(timestamp) {
-
-        if (!timestamp) {
-            return "--";
-        }
+        if (!timestamp) return "--";
 
         const date = new Date(timestamp);
 
@@ -747,24 +1363,65 @@
             return String(timestamp);
         }
 
-        return date.toLocaleTimeString(
-            "en-US",
-            {
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit"
-            }
-        );
+        return date.toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit"
+        });
     }
 
+    function formatAge(timestamp) {
+        if (!timestamp) {
+            return {
+                text: "unknown",
+                seconds: Infinity
+            };
+        }
+
+        const date = new Date(timestamp);
+
+        if (Number.isNaN(date.getTime())) {
+            return {
+                text: "unknown",
+                seconds: Infinity
+            };
+        }
+
+        const seconds = Math.max(
+            0,
+            Math.floor((Date.now() - date.getTime()) / 1000)
+        );
+
+        if (seconds < 60) {
+            return {
+                text: `${seconds}s ago`,
+                seconds
+            };
+        }
+
+        if (seconds < 3600) {
+            return {
+                text: `${Math.floor(seconds / 60)}m ago`,
+                seconds
+            };
+        }
+
+        return {
+            text: `${Math.floor(seconds / 3600)}h ago`,
+            seconds
+        };
+    }
 
     function formatPlatform(device) {
-
         const platform =
-            device.platform || "Unknown";
+            device.platform ||
+            device.os ||
+            "Unknown";
 
         const version =
-            device.platform_version || "";
+            device.platform_version ||
+            device.os_version ||
+            "";
 
         if (!version) {
             return platform;
@@ -773,23 +1430,91 @@
         return `${platform} ${version}`;
     }
 
+    // =========================================================
+    // RISK
+    // =========================================================
 
-    function riskClass(score) {
+    function normalizeRiskLevel(level, score) {
 
-        const value =
-            Number(score || 0);
+        const normalized =
+            String(level || "")
+                .trim()
+                .toUpperCase();
 
-        if (value < 20) {
-            return "risk-low";
+        if (
+            normalized === "CRITICAL" ||
+            normalized === "HIGH" ||
+            normalized === "MEDIUM" ||
+            normalized === "LOW"
+        ) {
+            return normalized;
         }
 
-        if (value < 45) {
+        const value = Number(score || 0);
+
+        if (value >= 70) return "HIGH";
+        if (value >= 40) return "MEDIUM";
+
+        return "LOW";
+    }
+
+    function riskClass(score, level) {
+
+        const normalized =
+            normalizeRiskLevel(level, score);
+
+        if (normalized === "HIGH" || normalized === "CRITICAL") {
+            return "risk-high";
+        }
+
+        if (normalized === "MEDIUM") {
             return "risk-medium";
         }
 
-        return "risk-high";
+        return "risk-low";
     }
 
+    function riskNumber(score) {
+
+        const value = Number(score);
+
+        if (!Number.isFinite(value)) {
+            return 0;
+        }
+
+        return Math.max(
+            0,
+            Math.min(100, value)
+        );
+    }
+
+    // =========================================================
+    // LIVE METRIC HELPERS
+    // =========================================================
+
+    const previousMetrics = {};
+
+    function setLiveMetric(id, value) {
+        const el = $(id);
+        if (!el) return;
+
+        const next = String(value);
+        const previous = previousMetrics[id];
+
+        el.textContent = next;
+
+        if (previous !== undefined && previous !== next) {
+            el.classList.remove("metric-pulse");
+            void el.offsetWidth;
+            el.classList.add("metric-pulse");
+        }
+
+        previousMetrics[id] = next;
+    }
+
+    // =========================================================
+    // ACTIVITY
+    // =========================================================
 
     function activityIcon(event) {
 
@@ -799,8 +1524,10 @@
                 String(event.severity || "")
                     .toUpperCase();
 
-            if (severity === "CRITICAL" ||
-                severity === "HIGH") {
+            if (
+                severity === "CRITICAL" ||
+                severity === "HIGH"
+            ) {
                 return "🚨";
             }
 
@@ -814,12 +1541,252 @@
         return "📡";
     }
 
+    // =========================================================
+    // POSTURE
+    // =========================================================
+
+    function updatePosture(stats, devices) {
+
+        const alerts =
+            stats.alerts || {};
+
+        const values = {
+            critical: Number(alerts.critical || 0),
+            high: Number(alerts.high || 0),
+            medium: Number(alerts.medium || 0),
+            low: Number(alerts.low || 0)
+        };
+
+        const totalActive =
+            Number(
+                alerts.open ??
+                (
+                    values.critical +
+                    values.high +
+                    values.medium +
+                    values.low
+                )
+            );
+
+        /*
+         * IMPORTANT:
+         *
+         * The dashboard does not calculate security risk.
+         *
+         * It displays the backend-owned risk score.
+         *
+         * Device risk values are therefore only read from
+         * the API response.
+         */
+
+        const maxRisk = devices.reduce(
+            (max, device) => {
+
+                const score =
+                    riskNumber(device.risk_score);
+
+                return Math.max(max, score);
+            },
+            0
+        );
+
+        const highestRiskDevice =
+            devices.reduce(
+                (highest, device) => {
+
+                    const score =
+                        riskNumber(device.risk_score);
+
+                    if (!highest) {
+                        return device;
+                    }
+
+                    return score >
+                        riskNumber(highest.risk_score)
+                        ? device
+                        : highest;
+                },
+                null
+            );
+
+        const backendRiskLevel =
+            highestRiskDevice
+                ? normalizeRiskLevel(
+                    highestRiskDevice.risk_level,
+                    highestRiskDevice.risk_score
+                )
+                : "LOW";
+
+        // -----------------------------------------------------
+        // RISK RING
+        // -----------------------------------------------------
+
+        const ring = $("risk-ring");
+
+        const degrees =
+            Math.min(360, maxRisk * 3.6);
+
+        let ringColor = "#22ff88";
+
+        if (
+            backendRiskLevel === "CRITICAL" ||
+            backendRiskLevel === "HIGH"
+        ) {
+            ringColor = "#ff3860";
+        }
+        else if (
+            backendRiskLevel === "MEDIUM"
+        ) {
+            ringColor = "#ffb547";
+        }
+
+        ring.style.background =
+            `conic-gradient(
+                ${ringColor}
+                ${degrees}deg,
+                #0a1a2e
+                ${degrees}deg
+            )`;
+
+        ring.style.boxShadow =
+            `0 0 30px ${ringColor}33,
+             inset 0 0 20px rgba(0,0,0,0.7)`;
+
+        $("max-risk").textContent =
+            maxRisk.toFixed(0);
+
+        // -----------------------------------------------------
+        // POSTURE LABEL
+        // -----------------------------------------------------
+
+        let posture;
+        let postureClass;
+
+        if (
+            backendRiskLevel === "CRITICAL" ||
+            backendRiskLevel === "HIGH"
+        ) {
+            posture = "Elevated risk";
+            postureClass = "danger";
+        }
+        else if (
+            backendRiskLevel === "MEDIUM"
+        ) {
+            posture = "Attention required";
+            postureClass = "warning";
+        }
+        else {
+            posture = "No elevated risk";
+            postureClass = "healthy";
+        }
+
+        $("posture-status").textContent =
+            posture;
+
+        $("posture-status").className =
+            `posture-status ${postureClass}`;
+
+        // -----------------------------------------------------
+        // POSTURE NOTE
+        // -----------------------------------------------------
+
+        if (highestRiskDevice) {
+
+            const hostname =
+                highestRiskDevice.hostname ||
+                highestRiskDevice.device_id ||
+                "unknown endpoint";
+
+            $("posture-note").textContent =
+                `${backendRiskLevel} risk reported by ${hostname}.`;
+
+        }
+        else if (totalActive > 0) {
+
+            $("posture-note").textContent =
+                `${totalActive} active alert signal${totalActive === 1 ? "" : "s"} across monitored endpoints.`;
+
+        }
+        else {
+
+            $("posture-note").textContent =
+                "No active alert signals currently require attention.";
+        }
+
+        // -----------------------------------------------------
+        // ALERT DISTRIBUTION
+        // -----------------------------------------------------
+
+        const maxBar =
+            Math.max(
+                values.critical,
+                values.high,
+                values.medium,
+                values.low,
+                1
+            );
+
+        [
+            "critical",
+            "high",
+            "medium",
+            "low"
+        ].forEach(level => {
+
+            const value =
+                values[level];
+
+            $(`bar-${level}`).style.width =
+                `${Math.min(
+                    100,
+                    (value / maxBar) * 100
+                )}%`;
+
+            $(`${level}-value`).textContent =
+                value;
+        });
+
+        $("dedupe-chip").textContent =
+            `${Number(alerts.deduplicated || 0)} collapsed`;
+
+        // -----------------------------------------------------
+        // SYSTEM SIGNALS
+        // -----------------------------------------------------
+
+        $("signal-backend-text").textContent =
+            "online";
+
+        const online =
+            Number(stats.devices?.online || 0);
+
+        const total =
+            Number(stats.devices?.total || 0);
+
+        $("signal-endpoint-text").textContent =
+            `${online}/${total}`;
+
+        $("signal-alerts-text").textContent =
+            totalActive;
+
+        $("signal-alerts").className =
+            `signal-dot ${
+                totalActive > 0
+                    ? "danger"
+                    : ""
+            }`;
+
+        $("signal-time").textContent =
+            formatTime(stats.timestamp);
+    }
 
     // =========================================================
     // BACKEND STATUS
     // =========================================================
 
-    function setBackendStatus(online, message) {
+    function setBackendStatus(
+        online,
+        message
+    ) {
 
         const wrapper =
             $("backend-status");
@@ -829,31 +1796,28 @@
 
         if (online) {
 
-            wrapper.classList.remove("error");
+            wrapper.classList.remove(
+                "error"
+            );
 
             label.textContent =
-                message || "security console online";
+                message ||
+                "security console online";
 
             return;
         }
 
-        wrapper.classList.add("error");
+        wrapper.classList.add(
+            "error"
+        );
 
         label.textContent =
-            message || "security console unavailable";
+            message ||
+            "security console unavailable";
     }
-
 
     // =========================================================
     // STATS
-    // Backend shape:
-    //
-    // {
-    //   devices: { total, online, offline },
-    //   telemetry: { total },
-    //   alerts: { total, open, critical, high, medium, low },
-    //   timestamp
-    // }
     // =========================================================
 
     async function loadStats() {
@@ -870,7 +1834,6 @@
         const alerts =
             stats.alerts || {};
 
-
         const totalDevices =
             Number(devices.total || 0);
 
@@ -884,30 +1847,30 @@
             Number(telemetry.total || 0);
 
         const openAlerts =
-            Number(alerts.open || 0);
+            Number(
+                alerts.open ||
+                0
+            );
 
         const criticalAlerts =
-            Number(alerts.critical || 0);
+            Number(
+                alerts.critical ||
+                0
+            );
 
         const highAlerts =
-            Number(alerts.high || 0);
+            Number(
+                alerts.high ||
+                0
+            );
 
-
-        $("device-count").textContent =
-            totalDevices;
-
-        $("online-count").textContent =
-            onlineDevices;
-
-        $("alert-count").textContent =
-            openAlerts;
-
-        $("telemetry-count").textContent =
-            totalTelemetry;
+        setLiveMetric("device-count", totalDevices);
+        setLiveMetric("online-count", onlineDevices);
+        setLiveMetric("alert-count", openAlerts);
+        setLiveMetric("telemetry-count", totalTelemetry);
 
         $("device-badge").textContent =
             totalDevices;
-
 
         $("device-subtext").textContent =
             `${offlineDevices} offline`;
@@ -918,28 +1881,43 @@
         $("alert-subtext").textContent =
             `${criticalAlerts} critical · ${highAlerts} high`;
 
-        $("telemetry-subtext").textContent =
-            "stored in security database";
+        const eventsPerMinute =
+            Number(
+                telemetry.events_per_minute ??
+                telemetry.ingestion_rate ??
+                0
+            );
 
+        const recentEvents =
+            Number(
+                telemetry.events_last_5m ??
+                telemetry.recent_events ??
+                0
+            );
 
-        if (openAlerts > 0) {
-
-            $("alert-subtext").className =
-                "danger";
-
-        } else {
-
-            $("alert-subtext").className =
-                "healthy";
-
+        if (eventsPerMinute > 0) {
+            $("telemetry-subtext").innerHTML =
+                `${eventsPerMinute.toFixed(1)} events/min · ${recentEvents} recent <span class="live-tick"></span>`;
         }
+        else if (recentEvents > 0) {
+            $("telemetry-subtext").innerHTML =
+                `${recentEvents} events in last 5m <span class="live-tick"></span>`;
+        }
+        else {
+            $("telemetry-subtext").textContent =
+                "no recent ingestion";
+        }
+
+        $("alert-subtext").className =
+            openAlerts > 0
+                ? "danger"
+                : "healthy";
 
         return stats;
     }
 
-
     // =========================================================
-    // DEVICES
+    // DEVICE INVENTORY
     // =========================================================
 
     async function loadDevices() {
@@ -959,26 +1937,38 @@
 
         if (devices.length === 0) {
 
-            container.innerHTML = `
-                <div class="empty-state">
+            container.innerHTML =
+                `<div class="empty-state">
                     🔎 no monitored devices registered
-                </div>
-            `;
+                 </div>`;
 
-            return;
+            return devices;
         }
-
 
         devices.forEach(device => {
 
             const score =
-                Number(device.risk_score || 0);
+                riskNumber(
+                    device.risk_score
+                );
+
+            const level =
+                normalizeRiskLevel(
+                    device.risk_level,
+                    score
+                );
 
             const status =
-                device.status === "online"
+                String(
+                    device.status || ""
+                ).toLowerCase() === "online"
                     ? "online"
                     : "offline";
 
+            const age =
+                formatAge(
+                    device.last_seen
+                );
 
             const item =
                 document.createElement("div");
@@ -986,18 +1976,50 @@
             item.className =
                 "device-item";
 
+            // -------------------------------------------------
+            // Endpoint metrics
+            // -------------------------------------------------
+
+            const cpu =
+                device.cpu_percent ??
+                device.cpu ??
+                device.system?.cpu?.percent;
+
+            const memory =
+                device.memory_percent ??
+                device.memory ??
+                device.system?.memory?.percent;
+
+            const disk =
+                device.disk_percent ??
+                device.disk ??
+                device.system?.disk?.percent;
+
+            const processes =
+                device.process_count ??
+                device.processes ??
+                device.system?.process_count;
+
+            const connections =
+                device.network_connections ??
+                device.connection_count ??
+                device.network?.connection_count;
+
+            const metric =
+                (value, suffix = "") =>
+                    value === undefined ||
+                    value === null
+                        ? "--"
+                        : `${Number(value).toFixed(1)}${suffix}`;
 
             item.innerHTML = `
-
                 <div class="device-left">
 
-                    <span
-                        class="device-status ${
-                            status === "online"
-                                ? "online-dot"
-                                : "offline-dot"
-                        }"
-                    ></span>
+                    <span class="device-status ${
+                        status === "online"
+                            ? "online-dot"
+                            : "offline-dot"
+                    }"></span>
 
                     <div>
 
@@ -1018,9 +2040,11 @@
                             </span>
 
                             <span>
-                                ${status === "online"
-                                    ? "🟢 online"
-                                    : "⚫ offline"}
+                                ${
+                                    status === "online"
+                                        ? "🟢 online"
+                                        : "⚫ offline"
+                                }
                             </span>
 
                             <span>
@@ -1032,40 +2056,59 @@
                                 }
                             </span>
 
+                            <span>
+                                CPU ${metric(cpu, "%")}
+                            </span>
+
+                            <span>
+                                RAM ${metric(memory, "%")}
+                            </span>
+
+                            <span>
+                                Disk ${metric(disk, "%")}
+                            </span>
+
+                            <span>
+                                PROC ${
+                                    processes ?? "--"
+                                }
+                            </span>
+
+                            <span>
+                                NET ${
+                                    connections ?? "--"
+                                }
+                            </span>
+
+                            <span>
+                                Seen ${escapeHtml(age.text)}
+                            </span>
+
                         </div>
 
                     </div>
 
                 </div>
 
-
                 <div
-                    class="risk-badge ${riskClass(score)}"
-                    title="Current backend risk score"
+                    class="risk-badge ${riskClass(
+                        score,
+                        level
+                    )}"
                 >
-                    Risk ${score}
+                    ${escapeHtml(level)}
+                    · ${score.toFixed(0)}
                 </div>
-
             `;
 
-
             container.appendChild(item);
-
         });
 
+        return devices;
     }
 
-
     // =========================================================
-    // ACTIVITY
-    //
-    // Backend returns:
-    // {
-    //   count,
-    //   activity: [...]
-    // }
-    //
-    // Activity may contain telemetry or alert events.
+    // SECURITY ACTIVITY
     // =========================================================
 
     async function loadActivity() {
@@ -1086,21 +2129,17 @@
                 ? `${events.length} recent`
                 : "live";
 
-
         container.innerHTML = "";
-
 
         if (events.length === 0) {
 
-            container.innerHTML = `
-                <div class="empty-state">
+            container.innerHTML =
+                `<div class="empty-state">
                     🔎 no security activity recorded yet
-                </div>
-            `;
+                 </div>`;
 
             return;
         }
-
 
         events
             .slice(0, 8)
@@ -1114,9 +2153,10 @@
 
                 item.className =
                     `activity-item ${
-                        isAlert ? "alert" : ""
+                        isAlert
+                            ? "alert"
+                            : ""
                     }`;
-
 
                 const icon =
                     activityIcon(event);
@@ -1126,7 +2166,6 @@
                     event.device_id ||
                     "unknown device";
 
-
                 let description = "";
 
                 if (isAlert) {
@@ -1135,34 +2174,39 @@
                         event.title ||
                         "security alert";
 
-                } else {
+                }
+                else {
 
                     description =
                         `${event.telemetry_type || "telemetry"} received`;
                 }
 
-
                 const severity =
                     event.severity
-                        ? `
-                            <span class="
-                                severity
-                                severity-${escapeHtml(
-                                    String(event.severity)
-                                        .toUpperCase()
-                                )}
-                            ">
-                                ${escapeHtml(
-                                    String(event.severity)
-                                        .toUpperCase()
-                                )}
-                            </span>
-                          `
+                        ? `<span class="severity severity-${escapeHtml(
+                            String(
+                                event.severity
+                            ).toUpperCase()
+                        )}">
+                            ${escapeHtml(
+                                String(
+                                    event.severity
+                                ).toUpperCase()
+                            )}
+                           </span>`
                         : "";
 
+                const occurrences =
+                    isAlert &&
+                    event.occurrence_count
+                        ? `<span class="severity">
+                            ×${escapeHtml(
+                                event.occurrence_count
+                            )}
+                           </span>`
+                        : "";
 
                 item.innerHTML = `
-
                     <div class="event">
 
                         <span class="event-icon">
@@ -1181,25 +2225,24 @@
 
                             ${severity}
 
+                            ${occurrences}
+
                         </span>
 
                     </div>
 
                     <span class="time">
                         ${escapeHtml(
-                            formatTime(event.timestamp)
+                            formatTime(
+                                event.timestamp
+                            )
                         )}
                     </span>
-
                 `;
 
-
                 container.appendChild(item);
-
             });
-
     }
-
 
     // =========================================================
     // REFRESH
@@ -1209,78 +2252,175 @@
 
         try {
 
-            // Health is deliberately checked separately.
-            // Dashboard must not assume that API availability
-            // means the security system itself is healthy.
-
             const health =
                 await api("/api/health");
 
-
             setBackendStatus(
                 health.status === "healthy",
-                `security console online · v${health.version || "unknown"}`
+                `console online · v${
+                    health.version || "?"
+                }`
             );
 
-
-            await Promise.all([
+            const [
+                stats,
+                devices
+            ] = await Promise.all([
                 loadStats(),
-                loadDevices(),
-                loadActivity()
+                loadDevices()
             ]);
 
+            await loadActivity();
 
-            $("last-refresh").textContent =
-                `Last refresh: ${new Date().toLocaleTimeString()}`;
-
-
-            console.log(
-                "[Abacus Security] Dashboard refreshed",
-                new Date().toISOString()
+            updatePosture(
+                stats,
+                devices || []
             );
 
-        } catch (error) {
+            $("last-refresh").textContent =
+                `LAST REFRESH: ${
+                    new Date()
+                        .toLocaleTimeString()
+                } · LIVE`;
+
+        }
+        catch (error) {
 
             console.error(
-                "[Abacus Security] Dashboard refresh failed:",
+                "[ABACUS] refresh failed:",
                 error
             );
 
-
             setBackendStatus(
                 false,
-                "security console connection error"
+                "console connection error"
             );
 
+            $("signal-backend-text")
+                .textContent = "offline";
 
-            $("last-refresh").textContent =
-                "Last refresh: failed";
+            $("signal-backend")
+                .className =
+                "signal-dot danger";
 
+            $("posture-status")
+                .textContent =
+                "Console unavailable";
 
-            // Do not fabricate security data when the backend
-            // is unavailable.
+            $("posture-status")
+                .className =
+                "posture-status danger";
 
-            $("devices-container").innerHTML = `
-                <div class="empty-state error-state">
-                    ⚠️ unable to retrieve monitored devices
-                </div>
-            `;
+            $("last-refresh")
+                .textContent =
+                "LAST REFRESH: FAILED";
 
+            $("devices-container")
+                .innerHTML =
+                `<div class="empty-state error-state">
+                    ⚠ unable to retrieve monitored devices
+                 </div>`;
 
-            $("activity-container").innerHTML = `
-                <div class="empty-state error-state">
-                    ⚠️ unable to retrieve security activity
-                </div>
-            `;
-
+            $("activity-container")
+                .innerHTML =
+                `<div class="empty-state error-state">
+                    ⚠ unable to retrieve security activity
+                 </div>`;
         }
-
     }
 
+    // =========================================================
+    // 3D TILT
+    // =========================================================
+
+    function initTilt() {
+
+        document
+            .querySelectorAll(".tilt")
+            .forEach(card => {
+
+                card.addEventListener(
+                    "mousemove",
+                    (e) => {
+
+                        const rect =
+                            card.getBoundingClientRect();
+
+                        const x =
+                            e.clientX -
+                            rect.left;
+
+                        const y =
+                            e.clientY -
+                            rect.top;
+
+                        const cx =
+                            rect.width / 2;
+
+                        const cy =
+                            rect.height / 2;
+
+                        const rx =
+                            ((y - cy) / cy) * -4;
+
+                        const ry =
+                            ((x - cx) / cx) * 4;
+
+                        card.style.transform =
+                            `perspective(900px)
+                             rotateX(${rx}deg)
+                             rotateY(${ry}deg)
+                             translateZ(4px)`;
+                    }
+                );
+
+                card.addEventListener(
+                    "mouseleave",
+                    () => {
+
+                        card.style.transform =
+                            "perspective(900px) " +
+                            "rotateX(0) " +
+                            "rotateY(0) " +
+                            "translateZ(0)";
+                    }
+                );
+            });
+    }
+
+    // =========================================================
+    // BOOT SEQUENCE
+    // =========================================================
+
+    function bootSequence() {
+
+        const lines = [
+
+            "▸ INITIALIZING ABACUS CONSOLE...",
+            "▸ CONNECTING TO SECURITY API...",
+            "▸ LOADING TELEMETRY STATE...",
+            "▸ LOADING DETECTION STATE...",
+            "▸ VERIFYING ALERT DEDUPLICATION...",
+            "▸ READY."
+
+        ];
+
+        console.log(
+            "%c" +
+            lines.join("\n"),
+            "color:#00e5ff;" +
+            "font-family:monospace;" +
+            "font-size:11px;"
+        );
+    }
 
     // =========================================================
     // START
     // =========================================================
+
+    bootSequence();
+
+    initTilt();
 
     refreshDashboard();
 
