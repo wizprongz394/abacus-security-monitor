@@ -30,7 +30,7 @@ from typing import Any, Iterable, Optional
 # ENGINE METADATA
 # =========================================================
 
-DETECTION_ENGINE_VERSION = "0.8.2"
+DETECTION_ENGINE_VERSION = "0.8.5"
 DETECTION_ENGINE_NAME = "Abacus Detection Engine"
 
 
@@ -132,6 +132,50 @@ WMI_EXECUTION_PATTERNS: tuple[str, ...] = (
 )
 
 REMOTE_ADMIN_PORTS: set[int] = {23, 445, 3389, 5985, 5986}
+
+
+# =========================================================
+# V0.8.5: PROCESS CHAIN INTELLIGENCE
+# ---------------------------------------------------------
+# These relationships are intentionally conservative. A chain
+# alone is evidence, not proof of compromise.
+# =========================================================
+
+# Document/mail applications that can be abused as parents of
+# scripting activity.
+PROCESS_CHAIN_SUSPICIOUS_PARENTS: set[str] = {
+    "winword.exe",
+    "excel.exe",
+    "powerpnt.exe",
+    "outlook.exe",
+    "msaccess.exe",
+    "visio.exe",
+    "onenote.exe",
+}
+
+# Script interpreters whose parent-child relationship provides
+# useful execution context.
+PROCESS_CHAIN_INTERPRETERS: set[str] = {
+    "powershell.exe",
+    "pwsh.exe",
+    "cmd.exe",
+    "wscript.exe",
+    "cscript.exe",
+    "bash",
+    "sh",
+}
+
+# LOLBins that become more interesting when directly launched
+# by a scripting interpreter in the same process snapshot.
+PROCESS_CHAIN_LOLBINS: set[str] = {
+    "certutil.exe",
+    "bitsadmin.exe",
+    "mshta.exe",
+    "regsvr32.exe",
+    "rundll32.exe",
+    "wmic.exe",
+    "msiexec.exe",
+}
 
 
 # =========================================================
@@ -312,6 +356,7 @@ def detect(telemetry: dict[str, Any]) -> list[dict[str, Any]]:
     detections: list[Detection] = []
 
     detections.extend(detect_process_behavior(telemetry))
+    detections.extend(detect_process_chain_behavior(telemetry))
     detections.extend(
         detect_network_behavior(
             telemetry,
@@ -352,6 +397,133 @@ def detect_process_behavior(
         detections.extend(_analyze_single_process(process))
 
     return detections
+
+def detect_process_chain_behavior(
+    telemetry: dict[str, Any]
+) -> list[Detection]:
+    """
+    V0.8.5 process relationship detection.
+
+    Examines parent-child relationships represented in the current
+    telemetry snapshot. This detector is intentionally stateless:
+    it does not query SQLite and does not infer relationships that
+    are absent from the snapshot.
+
+    Supported relationship families:
+        1. Document/mail application -> script interpreter
+        2. Script interpreter -> LOLBin
+
+    A relationship is security-relevant evidence, not proof of
+    compromise. The correlation engine can combine this signal
+    with command-line, network, persistence, or other evidence.
+    """
+
+    detections: list[Detection] = []
+
+    processes = telemetry.get("top_processes")
+    if processes is None:
+        processes = telemetry.get("processes", [])
+
+    if not isinstance(processes, list):
+        return detections
+
+    # Resolve parent names from the same snapshot when Angelmode
+    # supplies PPID but does not supply parent_name.
+    process_names: dict[int, str] = {}
+
+    for process in processes:
+        if not isinstance(process, dict):
+            continue
+
+        pid = _safe_int(process.get("pid"))
+        name = _process_name(process)
+
+        if pid and name:
+            process_names[pid] = name.lower()
+
+    for process in processes:
+        if not isinstance(process, dict):
+            continue
+
+        child_name = _process_name(process).lower()
+        child_pid = _safe_int(process.get("pid"))
+
+        parent_name = str(
+            process.get("parent_name")
+            or process.get("ppid_name")
+            or ""
+        ).strip().lower()
+
+        parent_pid = _safe_int(process.get("ppid"))
+
+        if not parent_name and parent_pid:
+            parent_name = process_names.get(parent_pid, "")
+
+        if not child_name or not parent_name:
+            continue
+
+        # Defensive guard against malformed/self-referential telemetry.
+        if child_pid and parent_pid and child_pid == parent_pid:
+            continue
+
+        chain_type: Optional[str] = None
+        mitre_tactic = "Execution"
+        mitre_technique = "Command and Scripting Interpreter"
+        mitre_technique_id = "T1059"
+
+        # Document/mail application -> interpreter.
+        if (
+            parent_name in PROCESS_CHAIN_SUSPICIOUS_PARENTS
+            and child_name in PROCESS_CHAIN_INTERPRETERS
+        ):
+            chain_type = "document_or_mail_to_interpreter"
+
+        # Interpreter -> LOLBin.
+        elif (
+            parent_name in PROCESS_CHAIN_INTERPRETERS
+            and child_name in PROCESS_CHAIN_LOLBINS
+        ):
+            chain_type = "interpreter_to_lolbin"
+            mitre_technique = "System Binary Proxy Execution"
+            mitre_technique_id = "T1218"
+
+        if not chain_type:
+            continue
+
+        # Stable identity intentionally excludes PIDs because PIDs are
+        # volatile across snapshots. The relationship itself is stable.
+        signal_key = f"process-chain:{parent_name}->{child_name}"
+
+        detections.append(
+            Detection(
+                rule_id="PROC-CHAIN-001",
+                title="Suspicious process execution chain",
+                description=(
+                    f"Process '{parent_name}' launched '{child_name}', "
+                    "a relationship that can indicate script-based or "
+                    "proxy execution."
+                ),
+                severity="MEDIUM",
+                confidence="MEDIUM",
+                category="behaviour",
+                risk_increment=14,
+                mitre_tactic=mitre_tactic,
+                mitre_technique=mitre_technique,
+                mitre_technique_id=mitre_technique_id,
+                signal_key=signal_key,
+                evidence={
+                    "parent_name": parent_name,
+                    "parent_pid": parent_pid or None,
+                    "child_name": child_name,
+                    "child_pid": child_pid or None,
+                    "chain_type": chain_type,
+                    "source": "current_process_snapshot",
+                },
+            )
+        )
+
+    return detections
+
 
 def _analyze_single_process(process: dict[str, Any]) -> list[Detection]:
     """Run all process-level rules against a single process."""
